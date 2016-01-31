@@ -102,31 +102,30 @@ end
 
 J = J + (Theta1_tmp2+Theta2_tmp2)* lambda/(2*m);
 
-%% Part 2: Backpropagation
+% Part 2: Backpropagation
 
+I = eye(num_labels);
+Y = zeros(m, num_labels);       % [5000 10] 
 for i = 1:m
-    % step 1: already have: X_tmp, z2, a2, z3, a3(which is h_x) from Part 1
-    % step 2: 
-    Delta_3 = zeros(num_labels,1);
-    yi_colvec = zeros(num_labels,1);
-    for k = 1:num_labels
-        yi_colvec = (yy==y(i));         % yi_colvec is [10 1] logical array 
-        Delta_3(k) = h_x(i,k) - yi_colvec(k);
-    end
-    % step 3: for hidden layer 
-    Delta_2 = zeros(hidden_layer_size+1,1);
-    tmp = zeros(1,hidden_layer_size+1);
-    tmp(hidden_layer_size+1) = -10000;
-    tmp(1:hidden_layer_size) = z2(i,:);
-    Delta_2 = (Theta2'*Delta_3).*sigmoidGradient(tmp');         % [26 1] 
-    % skip first item in Delta_2 
-    Delta_2 = Delta_2(2:end);                                   % [25 1]
-    Delta_2 = Delta_2 + 
+    Y(i,:) = I(y(i),:);
 end
 
+% X_tmp: [5000 401]; z2: [5000 25]; a2: [5000 26];  z3:[5000 10]; h_x:[5000 10]
+sigma3 = h_x - Y;       % [5000 10] 
+z2_tmp = [ones(size(z2,1),1),z2];     % [5000 26]
+sigma2 = (sigma3 * Theta2) .* sigmoidGradient(z2_tmp);   % [5000 26]
 
 
+sigma2 = sigma2(:,2:end);
 
+delta1 = sigma2' * X_tmp;       % [25 401]
+delta2 = sigma3' * a2;          % [10 26]
+
+Theta1_grad = delta1./m;
+Theta2_grad = delta2./m;
+
+Theta1_grad = Theta1_grad + (lambda/m)*[zeros(size(Theta1,1), 1) Theta1(:, 2:end)];
+Theta2_grad = Theta2_grad + (lambda/m)*[zeros(size(Theta2,1), 1) Theta2(:, 2:end)];
 
 % source from:
 % https://github.com/schneems/Octave/blob/master/mlclass-ex4/mlclass-ex4/nnCostFunction.m 
@@ -135,8 +134,7 @@ end
 % for i=1:m
 %   Y(i, :)= I(y(i), :);
 % end
-% 
-% 
+%  
 % 
 % A1 = [ones(m, 1) X];
 % Z2 = A1 * Theta1';
