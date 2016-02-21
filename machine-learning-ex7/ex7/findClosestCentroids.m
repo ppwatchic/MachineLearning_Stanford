@@ -20,7 +20,15 @@ idx = zeros(size(X,1), 1);
 %
 % Note: You can use a for-loop over the examples to compute this.
 %
-
+num = length(X);    % get the number of examples 
+dummy = 0;
+for i = 1:num
+    for j = 1:K
+        d = X(i,:)-centroids(j,:);
+        mean_error(j) = d * d';
+    end
+    [dummy,idx(i)] = min(mean_error);
+end
 
 
 

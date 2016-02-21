@@ -25,6 +25,11 @@ centroids = zeros(K, n);
 %
 % Note: You can use a for-loop over the centroids to compute this.
 %
+num = length(X); 
+for i = 1:K
+    unit_vector = (idx==i);
+    centroids(i,:) =(unit_vector' * X) / sum(unit_vector);
+end
 
 
 
